@@ -1,30 +1,39 @@
-from data_distribution import DataDistribution
-from generator_distribution import GeneratorDistribution
-from generator_nn import GeneratorNN
-from discriminator_nn import DiscriminatorNN
-from numpy import reshape,ones
+from src.keras_yolo import *
+from keras.layers import Dense
+from keras.models import Model
+from os.path import join,exists
+from os import makedirs
+from requests import get as get_request
+from src import logger
 
-d_dist = DataDistribution()
-d_gen = GeneratorDistribution(range=8)
-nn_gen = GeneratorNN(hidden_size=4)
-nn_d = DiscriminatorNN(hidden_size=4)
-
-batch_size = 100
-
-for i in range(10000):
-    # Update Discriminator
-    x1 = d_dist.sample(batch_size)
-    x2 = d_gen.sample(batch_size)
-    x1 = reshape(x1, [batch_size,])
-    x2 = reshape(x2, [batch_size, ])
-
-    print("Training Discriminator:")
-    nn_d.train(x=x1, y=ones([batch_size, ]), batch_size=batch_size, epochs=1)
-    nn_d.train(x=x2, y=ones([batch_size, ]), batch_size=batch_size, epochs=1)
-
-    # Update Generator
-    print("Training Generator:")
-    x2 = d_gen.sample(batch_size)
-    x2 = reshape(x2, [batch_size, ])
-
-    nn_gen.train(x=x2, y=ones([batch_size, ]), batch_size=batch_size, epochs=1)
+if __name__ == '__main__':
+    logger.info("Start process")
+    logger.info("Load definition model")
+    model = make_yolov3_model()
+    weight_path = join('extras','yolov3.weights')
+    if not exists(weight_path):
+        makedirs('extras', exist_ok=True)
+        url = 'https://pjreddie.com/media/files/yolov3.weights'
+        r = get_request(url)
+        with open(weight_path, 'wb') as f:
+            f.write(r.content)
+        del r
+    logger.info("Load weights")
+    weight_reader = WeightReader(weight_path)
+    weight_reader.load_weights(model)
+    logger.info("End load weights")
+    logger.info("Add new layer for project purpose")
+    # for output in model.outputs:
+    #     pass
+    model2 = Model(model.inputs, model.outputs)
+    # weight_reader.load_weights(model)
+    # define the expected input shape for the model
+    input_w, input_h = 416, 416
+    # define our new photo
+    photo_filename = join('extras', 'zebra.jpg')
+    # load and prepare image
+    image, image_w, image_h = load_image_pixels(photo_filename, (input_w, input_h))
+    # make prediction
+    yhat = model2.predict(image)
+    # summarize the shape of the list of arrays
+    print([a.shape for a in yhat])

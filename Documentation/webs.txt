@@ -1,1 +1,7 @@
 http://blog.aylien.com/introduction-generative-adversarial-networks-code-tensorflow/
+
+https://machinelearningmastery.com/how-to-perform-object-detection-with-yolov3-in-keras/
+
+https://medium.com/datadriveninvestor/generative-adversarial-network-gan-using-keras-ce1c05cfdfd3
+
+https://towardsdatascience.com/gan-by-example-using-keras-on-tensorflow-backend-1a6d515a60d0
