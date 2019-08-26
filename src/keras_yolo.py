@@ -169,7 +169,7 @@ def bbox_iou(box1, box2):
 
 
 def make_yolov3_model():
-    input_image = Input(shape=(None, None, 3))
+    input_image = Input(shape=(416, 416, 3))
 
     # Layer  0 => 4
     x = _conv_block(input_image,
